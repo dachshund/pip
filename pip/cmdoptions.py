@@ -1,5 +1,5 @@
 """shared options and groups"""
-from optparse import make_option, OptionGroup
+from optparse import make_option, OptionGroup, SUPPRESS_HELP
 from pip.locations import build_prefix
 
 
@@ -48,20 +48,22 @@ find_links =  make_option(
     metavar='url',
     help="If a url or path to an html file, then parse for links to archives. If a local path or file:// url that's a directory, then look for archives in the directory listing.")
 
+# TODO: Remove after 1.6
 use_mirrors = make_option(
     '-M', '--use-mirrors',
     dest='use_mirrors',
     action='store_true',
     default=False,
-    help='Use the PyPI mirrors as a fallback in case the main index is down.')
+    help=SUPPRESS_HELP)
 
+# TODO: Remove after 1.6
 mirrors = make_option(
     '--mirrors',
     dest='mirrors',
     metavar='URL',
     action='append',
     default=[],
-    help='Specific mirror URLs to query when --use-mirrors is used.')
+    help=SUPPRESS_HELP)
 
 allow_external = make_option(
     "--allow-external",
@@ -76,16 +78,16 @@ allow_all_external = make_option(
     "--allow-all-external",
     dest="allow_all_external",
     action="store_true",
-    default=True,  # TODO: Change to False after 1.4 has been released
+    default=False,
     help="Allow the installation of all externally hosted files",
 )
 
-# TODO: NOOP after 1.4 has been released
 no_allow_external = make_option(
     "--no-allow-external",
     dest="allow_all_external",
     action="store_false",
-    help="Disallow the installation of all externally hosted files",
+    default=False,
+    help=SUPPRESS_HELP,
 )
 
 allow_unsafe = make_option(
@@ -101,8 +103,8 @@ no_allow_unsafe = make_option(
     "--no-allow-insecure",
     dest="allow_all_insecure",
     action="store_false",
-    default=True,
-    help="Disallow the installation of insecure and unverifiable files"
+    default=False,
+    help=SUPPRESS_HELP
 )
 
 requirements = make_option(

@@ -12,11 +12,11 @@ from tests.lib.path import Path
 
 def test_pip_second_command_line_interface_works():
     """
-    Check if ``pip-<PYVERSION>`` commands behaves equally
+    Check if ``pip<PYVERSION>`` commands behaves equally
     """
     e = reset_env()
 
-    args = ['pip-%s' % pyversion]
+    args = ['pip%s' % pyversion]
     args.extend(['install', 'INITools==0.2'])
     result = e.run(*args)
     egg_info_folder = e.site_packages / 'INITools-0.2-py%s.egg-info' % pyversion
@@ -143,7 +143,10 @@ def test_install_dev_version_from_pypi():
     Test using package==dev.
     """
     e = reset_env()
-    result = run_pip('install', 'INITools==dev', expect_error=True)
+    result = run_pip('install', 'INITools==dev',
+                     '--allow-external', 'INITools',
+                     '--allow-insecure', 'INITools',
+                     expect_error=True)
     assert (e.site_packages / 'initools') in result.files_created, str(result.stdout)
 
 
