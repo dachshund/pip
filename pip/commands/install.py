@@ -7,7 +7,7 @@ from pip.log import logger
 from pip.locations import src_prefix, virtualenv_no_global, distutils_scheme
 from pip.basecommand import Command
 from pip.index import PackageFinder
-from pip.exceptions import InstallationError, CommandError
+from pip.exceptions import InstallationError, CommandError, PreviousBuildDirError
 from pip import cmdoptions
 
 
@@ -166,6 +166,7 @@ class InstallCommand(Command):
                              allow_insecure=options.allow_insecure,
                              allow_all_external=options.allow_all_external,
                              allow_all_insecure=options.allow_all_insecure,
+                             allow_all_prereleases=options.pre,
                             )
 
     def run(self, options, args):
@@ -211,7 +212,7 @@ class InstallCommand(Command):
             target_dir=temp_target_dir)
         for name in args:
             requirement_set.add_requirement(
-                InstallRequirement.from_line(name, None, prereleases=options.pre))
+                InstallRequirement.from_line(name, None))
         for name in options.editables:
             requirement_set.add_requirement(
                 InstallRequirement.from_editable(name, default_vcs=options.default_vcs))
@@ -250,6 +251,8 @@ class InstallCommand(Command):
             elif self.bundle:
                 requirement_set.create_bundle(self.bundle_filename)
                 logger.notify('Created bundle in %s' % self.bundle_filename)
+        except PreviousBuildDirError:
+            return
         finally:
             # Clean up
             if (not options.no_clean) and ((not options.no_install) or options.download_dir):
