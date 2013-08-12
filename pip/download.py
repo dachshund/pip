@@ -31,11 +31,6 @@ __all__ = ['get_file_content', 'urlopen',
            'geturl', 'is_archive_file', 'unpack_vcs_link',
            'unpack_file_url', 'is_vcs_url', 'is_file_url', 'unpack_http_url']
 
-tuf.interposition.configure(filename=os.path.join(os.path.dirname( __file__ ),
-                                                  'tuf.interposition.json'),
-                            parent_repository_directory=os.path.dirname( __file__ ),
-                            parent_ssl_certificates_directory=os.path.dirname( __file__ ))
-
 def build_user_agent():
     """Return a string representing the user agent."""
     _implementation = platform.python_implementation()

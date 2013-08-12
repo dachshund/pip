@@ -9,6 +9,11 @@ import getpass
 from pip.backwardcompat import get_python_lib
 import pip.exceptions
 
+# A few TUF-specific locations.
+base_tuf_directory = os.path.dirname(__file__)
+tuf_interposition_json = os.path.join(base_tuf_directory,
+                                      'tuf.interposition.json')
+
 default_cert_path = os.path.join(os.path.dirname(__file__), 'cacert.pem')
 
 DELETE_MARKER_MESSAGE = '''\

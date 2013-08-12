@@ -4,11 +4,14 @@ import tempfile
 import shutil
 from pip.req import InstallRequirement, RequirementSet, parse_requirements
 from pip.log import logger
-from pip.locations import src_prefix, virtualenv_no_global, distutils_scheme
+from pip.locations import (src_prefix, virtualenv_no_global, distutils_scheme,
+                          base_tuf_directory, tuf_interposition_json)
 from pip.basecommand import Command
 from pip.index import PackageFinder
 from pip.exceptions import InstallationError, CommandError, PreviousBuildDirError
 from pip import cmdoptions
+
+import tuf.interposition
 
 
 class InstallCommand(Command):
@@ -151,6 +154,11 @@ class InstallCommand(Command):
         self.parser.insert_option_group(0, index_opts)
         self.parser.insert_option_group(0, cmd_opts)
 
+        # Configure TUF interposition for PyPI.
+        tuf.interposition.configure(filename=tuf_interposition_json,
+                                    parent_repository_directory=base_tuf_directory,
+                                    parent_ssl_certificates_directory=base_tuf_directory)
+
     def _build_package_finder(self, options, index_urls):
         """
         Create a package finder appropriate to this install command.
@@ -257,6 +265,9 @@ class InstallCommand(Command):
             # Clean up
             if (not options.no_clean) and ((not options.no_install) or options.download_dir):
                 requirement_set.cleanup_files(bundle=self.bundle)
+
+            # Deconfigure TUF interposition for PyPI.
+            tuf.interposition.deconfigure(filename=tuf_interposition_json)
 
         if options.target_dir:
             if not os.path.exists(options.target_dir):
