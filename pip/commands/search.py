@@ -47,6 +47,7 @@ class SearchCommand(Command):
             return SUCCESS
         return NO_MATCHES_FOUND
 
+    # TODO: Review security.
     def search(self, query, index_url):
         pypi = xmlrpclib.ServerProxy(index_url)
         hits = pypi.search({'name': query, 'summary': query}, 'or')

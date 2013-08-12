@@ -24,11 +24,17 @@ from pip.vcs import vcs
 from pip.log import logger
 from pip.locations import default_cert_path
 
+import tuf.interposition
+
 __all__ = ['get_file_content', 'urlopen',
            'is_url', 'url_to_path', 'path_to_url', 'path_to_url2',
            'geturl', 'is_archive_file', 'unpack_vcs_link',
            'unpack_file_url', 'is_vcs_url', 'is_file_url', 'unpack_http_url']
 
+tuf.interposition.configure(filename=os.path.join(os.path.dirname( __file__ ),
+                                                  'tuf.interposition.json'),
+                            parent_repository_directory=os.path.dirname( __file__ ),
+                            parent_ssl_certificates_directory=os.path.dirname( __file__ ))
 
 def build_user_agent():
     """Return a string representing the user agent."""
@@ -163,6 +169,7 @@ class URLOpener(object):
         self.passman = urllib2.HTTPPasswordMgrWithDefaultRealm()
         self.proxy_handler = None
 
+    @tuf.interposition.open_url
     def __call__(self, url):
         """
         If the given url contains auth info or if a normal request gets a 401

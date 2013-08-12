@@ -732,6 +732,7 @@ class HTMLPage(object):
             cache.add_page([url, real_url], inst)
         return inst
 
+    # TODO: Review security.
     @staticmethod
     def _get_content_type(url):
         """Get the Content-Type of the given url, using a HEAD request"""
