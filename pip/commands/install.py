@@ -155,9 +155,10 @@ class InstallCommand(Command):
         self.parser.insert_option_group(0, cmd_opts)
 
         # Configure TUF interposition for PyPI.
-        tuf.interposition.configure(filename=tuf_interposition_json,
-                                    parent_repository_directory=base_tuf_directory,
-                                    parent_ssl_certificates_directory=base_tuf_directory)
+        self.tuf_configurations = \
+          tuf.interposition.configure(filename=tuf_interposition_json,
+                                      parent_repository_directory=base_tuf_directory,
+                                      parent_ssl_certificates_directory=base_tuf_directory)
 
     def _build_package_finder(self, options, index_urls):
         """
@@ -267,7 +268,7 @@ class InstallCommand(Command):
                 requirement_set.cleanup_files(bundle=self.bundle)
 
             # Deconfigure TUF interposition for PyPI.
-            tuf.interposition.deconfigure(filename=tuf_interposition_json)
+            tuf.interposition.deconfigure(self.tuf_configurations)
 
         if options.target_dir:
             if not os.path.exists(options.target_dir):
