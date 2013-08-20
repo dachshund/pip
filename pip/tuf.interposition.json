@@ -11,9 +11,9 @@
         }
       },
       "target_paths": [
-        { "(.*/simple)/$": "{0}/index.html" },
-        { "(.*/simple/.+)/$": "{0}/index.html" },
-        { "(.*/packages/.+)$": "{0}" }
+        { "/(simple)/$": "{0}/index.html" },
+        { "/(simple/.+)/$": "{0}/index.html" },
+        { "/(packages/.+)$": "{0}" }
       ]
     }
   }
