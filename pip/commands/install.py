@@ -11,6 +11,7 @@ from pip.index import PackageFinder
 from pip.exceptions import InstallationError, CommandError, PreviousBuildDirError
 from pip import cmdoptions
 
+import tuf
 import tuf.interposition
 import tuf.log
 
@@ -157,10 +158,13 @@ class InstallCommand(Command):
 
         # Configure TUF interposition for PyPI.
         tuf.log.add_console_handler()
-        self.tuf_configurations = \
-          tuf.interposition.configure(filename=tuf_interposition_json,
-                                      parent_repository_directory=base_tuf_directory,
-                                      parent_ssl_certificates_directory=base_tuf_directory)
+        try:
+            self.tuf_configurations = \
+              tuf.interposition.configure(filename=tuf_interposition_json,
+                                          parent_repository_directory=base_tuf_directory,
+                                          parent_ssl_certificates_directory=base_tuf_directory)
+        except tuf.Error, error:
+            sys.exit('TUF could not initialize due to an error: '+str(error))
 
     def _build_package_finder(self, options, index_urls):
         """
@@ -264,13 +268,15 @@ class InstallCommand(Command):
                 logger.notify('Created bundle in %s' % self.bundle_filename)
         except PreviousBuildDirError:
             return
+        except tuf.Error, error:
+            sys.exit('TUF stopped the update due to an error: '+str(error))
         finally:
+            # Deconfigure TUF interposition for PyPI.
+            tuf.interposition.deconfigure(self.tuf_configurations)
+
             # Clean up
             if (not options.no_clean) and ((not options.no_install) or options.download_dir):
                 requirement_set.cleanup_files(bundle=self.bundle)
-
-            # Deconfigure TUF interposition for PyPI.
-            tuf.interposition.deconfigure(self.tuf_configurations)
 
         if options.target_dir:
             if not os.path.exists(options.target_dir):
