@@ -13,7 +13,6 @@ from pip import cmdoptions
 
 import tuf
 import tuf.interposition
-import tuf.log
 
 
 class InstallCommand(Command):
@@ -157,7 +156,6 @@ class InstallCommand(Command):
         self.parser.insert_option_group(0, cmd_opts)
 
         # Configure TUF interposition for PyPI.
-        tuf.log.add_console_handler()
         try:
             self.tuf_configurations = \
               tuf.interposition.configure(filename=tuf_interposition_json,
