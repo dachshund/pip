@@ -162,7 +162,7 @@ class InstallCommand(Command):
                                           parent_repository_directory=base_tuf_directory,
                                           parent_ssl_certificates_directory=base_tuf_directory)
         except tuf.Error, error:
-            sys.exit('TUF could not initialize due to an error: '+str(error))
+            sys.exit('TUF could not initialize due to an error:\n'+str(error))
 
     def _build_package_finder(self, options, index_urls):
         """
@@ -267,7 +267,7 @@ class InstallCommand(Command):
         except PreviousBuildDirError:
             return
         except tuf.Error, error:
-            sys.exit('TUF stopped the update due to an error: '+str(error))
+            sys.exit('TUF stopped the update due to an error:\n'+str(error))
         finally:
             # Deconfigure TUF interposition for PyPI.
             tuf.interposition.deconfigure(self.tuf_configurations)
