@@ -1,6 +1,8 @@
+import gc
 import os
 import sys
 import tempfile
+import timeit
 import shutil
 from pip.req import InstallRequirement, RequirementSet, parse_requirements
 from pip.log import logger
@@ -156,6 +158,9 @@ class InstallCommand(Command):
         self.parser.insert_option_group(0, index_opts)
         self.parser.insert_option_group(0, cmd_opts)
 
+        # Following timeit, turn off GC for measuring timings.
+        gc.disable()
+
         # Configure TUF interposition for PyPI.
         tuf.log.add_console_handler()
         try:
@@ -253,11 +258,18 @@ class InstallCommand(Command):
                 requirement_set.locate_files()
 
             if not options.no_install and not self.bundle:
+                # Start measuring pip installation time.
+                install_start_time = timeit.default_timer()
+
                 requirement_set.install(install_options, global_options, root=options.root_path)
                 installed = ' '.join([req.name for req in
                                       requirement_set.successfully_installed])
                 if installed:
                     logger.notify('Successfully installed %s' % installed)
+
+                    # Measure pip installation time.
+                    install_stop_time = timeit.default_timer()
+                    install_time = install_stop_time - install_start_time
             elif not self.bundle:
                 downloaded = ' '.join([req.name for req in
                                        requirement_set.successfully_downloaded])
@@ -270,6 +282,33 @@ class InstallCommand(Command):
             return
         except tuf.Error, error:
             sys.exit('TUF stopped the update due to an error: '+str(error))
+        else:
+
+            # Get updater to get timing measurements.
+            updater_controller = getattr(tuf.interposition,
+                                         '__updater_controller')
+            updater = updater_controller.get('https://pypi.python.org/simple/')
+            assert updater is not None
+
+            # I know, I know, this name was a terrible idea.
+            updater = updater.updater
+            # We get *cumulative* statistics across packages during *this*
+            # installation, because the same updater is reused for the same
+            # (hostname, port).
+            metadata_download_and_processing_time = updater._refresh_time + \
+                                                    updater._target_time
+            metadata_download_time = updater._get_metadata_file_time
+            metadata_processing_time = \
+              metadata_download_and_processing_time - metadata_download_time
+            target_download_and_processing_time = updater._download_target_time
+
+            # Append statistics to an environment-specific log file.
+            log_filename = os.environ['LOG_FILENAME']
+            with open(log_filename, 'a') as log_file:
+              log_file.write('{},{},{},{}\n'.format(metadata_processing_time,
+                             metadata_download_time,
+                             target_download_and_processing_time,
+                             install_time))
         finally:
             # Deconfigure TUF interposition for PyPI.
             tuf.interposition.deconfigure(self.tuf_configurations)

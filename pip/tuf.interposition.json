@@ -1,20 +1,28 @@
 {
   "configurations": {
     "pypi.python.org": {
-      "repository_directory": "tuf-metadata",
-      "repository_mirrors" : {
-        "mirror1": {
-          "url_prefix": "http://mirror1.poly.edu/test-pypi",
-          "metadata_path": "metadata",
-          "targets_path": "targets",
-          "confined_target_dirs": [""]
-        }
-      },
+      "repository_directory": "tuf-metadata", 
       "target_paths": [
-        { "/(simple)/$": "{0}/index.html" },
-        { "/(simple/.+)/$": "{0}/index.html" },
-        { "/(packages/.+)$": "{0}" }
-      ]
+        {
+          "/(simple)/$": "{0}/index.html"
+        }, 
+        {
+          "/(simple/.+)/$": "{0}/index.html"
+        }, 
+        {
+          "/(packages/.+)$": "{0}"
+        }
+      ], 
+      "repository_mirrors": {
+        "mirror1": {
+          "url_prefix": "http://trishank.poly.edu/8192", 
+          "targets_path": "targets", 
+          "metadata_path": "metadata", 
+          "confined_target_dirs": [
+            ""
+          ]
+        }
+      }
     }
   }
-} 
+}
