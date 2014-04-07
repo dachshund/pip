@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+from __future__ import division
+
 import json
 import math
 import os
@@ -54,9 +56,10 @@ for target_name, target_metadata in targets.iteritems():
       min_project_name = project_name
       min_package_name = target_name
 
-#print(avg_package_and_simple_length, min_project_diff, min_project_name, min_package_name)
 package_filename = os.path.basename(min_package_name)
 package_version = package_filename.split('-')[1]
+#print(avg_package_and_simple_length, min_project_diff, min_project_name,
+#      min_package_name)
 print('{}=={}'.format(min_project_name, package_version))
 
 
