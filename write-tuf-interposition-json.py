@@ -8,7 +8,8 @@ import sys
 
 assert len(sys.argv) == 2
 number_of_bins = int(sys.argv[1])
-tuf_interposition_json_filename = 'pip/tuf.interposition.json'
+tuf_interposition_json_filename = \
+    'lib/python2.7/site-packages/pip/tuf.interposition.json'
 
 with open(tuf_interposition_json_filename) as tuf_interposition_json_file:
   tuf_interposition_json = json.load(tuf_interposition_json_file)
