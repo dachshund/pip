@@ -15,7 +15,7 @@
       ], 
       "repository_mirrors": {
         "mirror1": {
-          "url_prefix": "http://trishank.poly.edu/8192", 
+          "url_prefix": "http://trishank.poly.edu/2", 
           "targets_path": "targets", 
           "metadata_path": "metadata", 
           "confined_target_dirs": [

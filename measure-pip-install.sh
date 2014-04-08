@@ -23,9 +23,10 @@ virtualenv --no-site-packages measure-pip-install
 cd measure-pip-install
 source bin/activate
 
-pip install ~/github.com/dachshund/tuf
+pip install https://github.com/dachshund/tuf/archive/updater_timers.zip
 pip install pycrypto
-pip install -U ~/github.com/dachshund/pip
+# must point to the tuf-master branch
+pip install -U https://github.com/dachshund/pip/archive/tuf-master-time-hashed-delegations.zip
 # install an average-sized package
 # statistics will be written to $LOG_FILENAME
 pip install --no-deps $AVG_PACKAGE

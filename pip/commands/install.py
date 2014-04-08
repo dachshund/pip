@@ -161,15 +161,12 @@ class InstallCommand(Command):
         # Following timeit, turn off GC for measuring timings.
         gc.disable()
 
+        # Decrease limit for avg download speed, so that we can ignore slow
+        # connections.
+        tuf.conf.MIN_AVERAGE_DOWNLOAD_SPEED = 2**10
+
         # Configure TUF interposition for PyPI.
         tuf.log.add_console_handler()
-        try:
-            self.tuf_configurations = \
-              tuf.interposition.configure(filename=tuf_interposition_json,
-                                          parent_repository_directory=base_tuf_directory,
-                                          parent_ssl_certificates_directory=base_tuf_directory)
-        except tuf.Error, error:
-            sys.exit('TUF could not initialize due to an error: '+str(error))
 
     def _build_package_finder(self, options, index_urls):
         """
@@ -190,6 +187,19 @@ class InstallCommand(Command):
                             )
 
     def run(self, options, args):
+        # Start measuring pip processing and installation time.
+        install_start_time = timeit.default_timer()
+
+        # We move this here to include TUF time to be substracted from the
+        # total installation time.
+        try:
+            self.tuf_configurations = \
+              tuf.interposition.configure(filename=tuf_interposition_json,
+                                          parent_repository_directory=base_tuf_directory,
+                                          parent_ssl_certificates_directory=base_tuf_directory)
+        except tuf.Error, error:
+            sys.exit('TUF could not initialize due to an error: '+str(error))
+
         if options.download_dir:
             options.no_install = True
             options.ignore_installed = True
@@ -258,18 +268,11 @@ class InstallCommand(Command):
                 requirement_set.locate_files()
 
             if not options.no_install and not self.bundle:
-                # Start measuring pip installation time.
-                install_start_time = timeit.default_timer()
-
                 requirement_set.install(install_options, global_options, root=options.root_path)
                 installed = ' '.join([req.name for req in
                                       requirement_set.successfully_installed])
                 if installed:
                     logger.notify('Successfully installed %s' % installed)
-
-                    # Measure pip installation time.
-                    install_stop_time = timeit.default_timer()
-                    install_time = install_stop_time - install_start_time
             elif not self.bundle:
                 downloaded = ' '.join([req.name for req in
                                        requirement_set.successfully_downloaded])
@@ -283,6 +286,11 @@ class InstallCommand(Command):
         except tuf.Error, error:
             sys.exit('TUF stopped the update due to an error: '+str(error))
         else:
+            # Measure approximate pip processing and installation time;
+            # this includes time for TUF, most of which we will later
+            # subtract.
+            install_stop_time = timeit.default_timer()
+            install_time = install_stop_time - install_start_time
 
             # Get updater to get timing measurements.
             updater_controller = getattr(tuf.interposition,
@@ -301,6 +309,12 @@ class InstallCommand(Command):
             metadata_processing_time = \
               metadata_download_and_processing_time - metadata_download_time
             target_download_and_processing_time = updater._download_target_time
+
+            # Subtract most of TUF time (dominated by metadata and target
+            # download and processing time).
+            install_time -= metadata_download_and_processing_time + \
+                            target_download_and_processing_time
+            assert install_time > 0
 
             # Append statistics to an environment-specific log file.
             log_filename = os.environ['LOG_FILENAME']
