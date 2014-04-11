@@ -94,7 +94,7 @@ def plot_times(minimum_bin_exponent, maximum_bin_exponent, times):
 
     # add title, labels, ticks, legends
     ax.set_title('Average time to download and install a package of average ' \
-                 'size (345,055 bytes)', fontsize=10)
+                 'size (345,056 bytes)', fontsize=10)
     ax.set_ylabel('Seconds')
     ax.set_xlabel('Number of unclaimed bins')
     ax.set_xticks(ind+(width/2))

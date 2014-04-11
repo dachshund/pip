@@ -161,9 +161,10 @@ class InstallCommand(Command):
         # Following timeit, turn off GC for measuring timings.
         gc.disable()
 
-        # Decrease limit for avg download speed, so that we can ignore slow
+        # Adjust speed and timeout limits so that we can ignore slow
         # connections.
         tuf.conf.MIN_AVERAGE_DOWNLOAD_SPEED = 2**10
+        tuf.conf.SOCKET_TIMEOUT = 2**6
 
         # Configure TUF interposition for PyPI.
         tuf.log.add_console_handler()
